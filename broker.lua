@@ -125,25 +125,25 @@ while true do
     if payload["type"] == "CONNECT" then
         connect(id)
     elseif payload["type"] == "CONNACK" then
-        print("TODO")
+        print("Received message only server should send, ignoring")
     elseif payload["type"] == "SUBSCRIBE" then
         subscribe(id, payload["topic"])
     elseif payload["type"] == "SUBACK" then
-        print("TODO")
+        print("Received message only server should send, ignoring")
     elseif payload["type"] == "UNSUBSCRIBE" then
         unsubscribe(id, payload["topic"])
     elseif payload["type"] == "UNSUBACK" then
-        print("TODO")
+        print("Received message only server should send, ignoring")
     elseif payload["type"] == "PUBLISH" then
         print("TODO")
     elseif payload["type"] == "PUBACK" then
-        print("TODO")
+        print("Received message only server should send, ignoring")
     elseif payload["type"] == "PUBREC" then
-        print("TODO")
+        print("Received message only server should send, ignoring")
     elseif payload["type"] == "PUBREL" then
         print("TODO")
     elseif payload["type"] == "PUBCOMP" then
-        print("TODO")
+        print("Received message only server should send, ignoring")
     elseif payload["type"] == "DISCONNECT" then
         disconnect(id)
     else
