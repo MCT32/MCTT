@@ -4,7 +4,8 @@
 
 - [X] Subscribing
 - [X] Unsubscribing
-- [ ] Publishing
+- [X] Publishing
+- [ ] Use rednet
 - [ ] Make client into API
 - [ ] Wildcard subscriptions
 - [ ] Heartbeat
@@ -29,6 +30,8 @@
 - CONNACK
 - SUBSCRIBE
 - SUBACK
+- UNSUBSCRIBE
+- UNSUBACK
 - PUBLISH
 - PUBACK
 - PUBREC
@@ -61,6 +64,15 @@ Unsubscribe from a topic.
 | Fields | Description |
 | --- | --- |
 | topic | The topic to unsubscribe from. |
+
+### PUBLISH
+
+Publish a message to a topic.
+
+| Fields | Description |
+| --- | --- |
+| topic | The topic to publish to. |
+| content | The content of the message. |
 
 ### DISCONNECT
 

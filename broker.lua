@@ -32,6 +32,25 @@ function sendUnsuback(id, topic)
     })
 end
 
+function sendPublish(id, topic, content)
+    modem.transmit(1883, 1883, {
+        id=id,
+        type="PUBLISH",
+        topic=topic,
+        content=content
+    })
+end
+
+function sendMessage(topic, content)
+    for id, client in pairs(clients) do
+        if client["subs"][topic] == true then
+            sendPublish(id, topic, content)
+        end
+    end
+
+    print("Published to topic " .. topic .. " message " .. textutils.serialise(content))
+end
+
 function connect(id)
     if clients[id] ~= nil then
         print("Client " .. id .. " already in server client list, ignoring and acknowledging")
@@ -85,6 +104,16 @@ function unsubscribe(id, topic)
     end
 end
 
+function publish(id, topic, content)
+    if clients[id] == nil then
+        print("Client " .. id .. " not in server client list, ignoring")
+    elseif type(topic) ~= "string" then
+        print("Client " .. id .. " sent non string topic, ignoring")
+    else
+        sendMessage(topic, content)
+    end
+end
+
 function disconnect(id)
     if clients[id] == nil then
         print("Client " .. id .. " not in server client list, ignoring")
@@ -135,13 +164,13 @@ while true do
     elseif payload["type"] == "UNSUBACK" then
         print("Received message only server should send, ignoring")
     elseif payload["type"] == "PUBLISH" then
-        print("TODO")
+        publish(id, payload["topic"], payload["content"])
     elseif payload["type"] == "PUBACK" then
-        print("Received message only server should send, ignoring")
+        print("QoS not yet supported")
     elseif payload["type"] == "PUBREC" then
         print("Received message only server should send, ignoring")
     elseif payload["type"] == "PUBREL" then
-        print("TODO")
+        print("QoS not yet supported")
     elseif payload["type"] == "PUBCOMP" then
         print("Received message only server should send, ignoring")
     elseif payload["type"] == "DISCONNECT" then

@@ -221,6 +221,49 @@ function unsubscribe(topic)
     ::found::
 end
 
+function publish(topic, content)
+    modem.transmit(1883, 1883, {
+        id=os.computerID(),
+        type="PUBLISH",
+        topic=topic,
+        content=content
+    })
+end
+
+function receiveMessages()
+    -- Wait for messages
+    while true do
+        -- Pull event
+        local event, side, channel, reply, payload, distance = os.pullEvent("modem_message")
+
+        -- Check the correct channel
+        if channel ~= 1883 then
+            goto continue
+        end
+
+        -- Validate payload
+        if type(payload) ~= "table" then
+            print("Non table message, ignoring")
+            goto continue
+        end
+
+        -- Validate ID
+        local id = payload["id"]
+        if type(id) ~= "number" then
+            print("Non number id, ignoring")
+            goto continue
+        end
+
+        -- Read message type
+        if payload["type"] == "PUBLISH" then
+            print("Received message on topic " .. payload["topic"] .. ": " .. textutils.serialise(payload["content"]))
+        end
+
+        -- Continue label to skip loop iteration
+        ::continue::
+    end
+end
+
 -- Varibles used for waiting
 connected = false
 subscribed = false
@@ -228,9 +271,15 @@ unsubscribed = false
 subTopic = ""
 
 if not connect() then goto exit end
-subscribe("test/hello")
-unsubscribe("test/hello")
-disconnect(os.computerID())
+
+function main()
+    subscribe("test/hello")
+    publish("test/hello", "hello, world!")
+    unsubscribe("test/hello")
+    disconnect(os.computerID())
+end
+
+parallel.waitForAny(main, receiveMessages)
 
 -- Exit label to exit the program
 ::exit::
