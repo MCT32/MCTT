@@ -56,17 +56,34 @@ function sendConnect(id)
     })
 end
 
+function disconnect(id)
+    modem.transmit(1883, 1883, {
+        id=id,
+        type="DISCONNECT"
+    })
+
+    print("Disconnected")
+end
+
+function connect()
+    -- Connect to broker
+    sendConnect(os.computerID())
+
+    -- Wait for broker reply
+    parallel.waitForAny(timeout, waitForConnack)
+    if not connected then
+        print("Connection not acknowledged, exiting")
+        return false
+    end
+
+    return true
+end
+
 connected = false
 
--- Connect to broker
-sendConnect(os.computerID())
-
--- Wait for broker reply
-parallel.waitForAny(timeout, waitForConnack)
-if not connected then
-    print("Connection not acknowledged, exiting")
-    goto exit
-end
+if not connect() then goto exit end
+os.sleep(5)
+disconnect(os.computerID())
 
 -- Exit label to exit the program
 ::exit::

@@ -33,6 +33,16 @@ function connect(id)
     end
 end
 
+function disconnect(id)
+    if clients[id] == nil then
+        print("Client " .. id .. " not in server client list, ignoring")
+    else
+        clients[id] = nil
+
+        print("Client " .. id .. " disconnected")
+    end
+end
+
 term.clear()
 print("Accepting connections...")
 
@@ -79,7 +89,7 @@ while true do
     elseif payload["type"] == "PUBCOMP" then
         print("TODO")
     elseif payload["type"] == "DISCONNECT" then
-        print("TODO")
+        disconnect(id)
     else
         print("Unknown message type, ignoring")
     end

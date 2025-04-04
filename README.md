@@ -30,3 +30,6 @@ Used to connect the client to the broker. No other fields required.
 
 ### CONNACK
 Acknowledgement from the broker to the client that they have connected. No other fields required.
+
+### DISCONNECT
+Used to disconnect the client from the broker. No other fields required.
