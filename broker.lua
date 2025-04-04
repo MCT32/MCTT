@@ -1,44 +1,29 @@
--- Open first modem
-modem = peripheral.find("modem")
-if modem == nil then
-    print("No modems found, exiting")
+-- Open modem
+peripheral.find("modem", rednet.open)
+if not rednet.isOpen() then
+    print("Could not open modem, exiting")
     goto exit
 end
-modem.open(1883)
+
+rednet.host("mctt", "broker")
 
 -- List of connected clients
 clients = {}
 
 function sendConnack(id)
-    modem.transmit(1883, 1883, {
-        id=id,
-        type="CONNACK"
-    })
+    rednet.send(id, {type="CONNACK"}, "mctt")
 end
 
-function sendSuback(id, topic)
-    modem.transmit(1883, 1883, {
-        id=id,
-        type="SUBACK",
-        topic=topic
-    })
+function sendSuback(id)
+    rednet.send(id, {type="SUBACK",topic=topic}, "mctt")
 end
 
-function sendUnsuback(id, topic)
-    modem.transmit(1883, 1883, {
-        id=id,
-        type="UNSUBACK",
-        topic=topic
-    })
+function sendUnsuback(id)
+    rednet.send(id, {type="UNSUBACK",topic=topic}, "mctt")
 end
 
 function sendPublish(id, topic, content)
-    modem.transmit(1883, 1883, {
-        id=id,
-        type="PUBLISH",
-        topic=topic,
-        content=content
-    })
+    rednet.send(id, {type="PUBLISH",topic=topic,content=content}, "mctt")
 end
 
 function sendMessage(topic, content)
@@ -77,11 +62,11 @@ function subscribe(id, topic)
         -- See if client is already subscribed
         if clients[id]["subs"][topic] ~= nil then
             print("Client " .. id .. " already subscribed to topic, ignoring and acknowledging")
-            sendSuback(id, topic)
+            sendSuback(id)
         else
             clients[id]["subs"][topic] = true
             print("Client " .. id .. " subscribed to topic " .. topic)
-            sendSuback(id, topic)
+            sendSuback(id)
         end
     end
 end
@@ -95,11 +80,11 @@ function unsubscribe(id, topic)
         -- See if client is subscribed
         if clients[id]["subs"][topic] == nil then
             print("Client " .. id .. " isn't already subscribed to topic, ignoring and acknowledging")
-            sendUnsuback(id, topic)
+            sendUnsuback(id)
         else
             clients[id]["subs"][topic] = nil
             print("Client " .. id .. " unsubscribed from topic " .. topic)
-            sendUnsuback(id, topic)
+            sendUnsuback(id)
         end
     end
 end
@@ -130,50 +115,38 @@ print("Accepting connections...")
 -- Wait for messages
 while true do
     -- Pull event
-    local event, side, channel, reply, payload, distance = os.pullEvent("modem_message")
+    id, message = rednet.receive("mctt")
 
-    -- Check the correct channel
-    if channel ~= 1883 then
-        goto continue
-    end
-
-    -- Validate payload
-    if type(payload) ~= "table" then
+    -- Validate message
+    if type(message) ~= "table" then
         print("Non table message, ignoring")
         goto continue
     end
 
-    -- Validate ID
-    local id = payload["id"]
-    if type(id) ~= "number" then
-        print("Non number id, ignoring")
-        goto continue
-    end
-
     -- Read message type
-    if payload["type"] == "CONNECT" then
+    if message["type"] == "CONNECT" then
         connect(id)
-    elseif payload["type"] == "CONNACK" then
+    elseif message["type"] == "CONNACK" then
         print("Received message only server should send, ignoring")
-    elseif payload["type"] == "SUBSCRIBE" then
-        subscribe(id, payload["topic"])
-    elseif payload["type"] == "SUBACK" then
+    elseif message["type"] == "SUBSCRIBE" then
+        subscribe(id, message["topic"])
+    elseif message["type"] == "SUBACK" then
         print("Received message only server should send, ignoring")
-    elseif payload["type"] == "UNSUBSCRIBE" then
-        unsubscribe(id, payload["topic"])
-    elseif payload["type"] == "UNSUBACK" then
+    elseif message["type"] == "UNSUBSCRIBE" then
+        unsubscribe(id, message["topic"])
+    elseif message["type"] == "UNSUBACK" then
         print("Received message only server should send, ignoring")
-    elseif payload["type"] == "PUBLISH" then
-        publish(id, payload["topic"], payload["content"])
-    elseif payload["type"] == "PUBACK" then
+    elseif message["type"] == "PUBLISH" then
+        publish(id, message["topic"], message["content"])
+    elseif message["type"] == "PUBACK" then
         print("QoS not yet supported")
-    elseif payload["type"] == "PUBREC" then
+    elseif message["type"] == "PUBREC" then
         print("Received message only server should send, ignoring")
-    elseif payload["type"] == "PUBREL" then
+    elseif message["type"] == "PUBREL" then
         print("QoS not yet supported")
-    elseif payload["type"] == "PUBCOMP" then
+    elseif message["type"] == "PUBCOMP" then
         print("Received message only server should send, ignoring")
-    elseif payload["type"] == "DISCONNECT" then
+    elseif message["type"] == "DISCONNECT" then
         disconnect(id)
     else
         print("Unknown message type, ignoring")

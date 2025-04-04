@@ -5,7 +5,7 @@
 - [X] Subscribing
 - [X] Unsubscribing
 - [X] Publishing
-- [ ] Use rednet
+- [X] Use rednet
 - [ ] Make client into API
 - [ ] Wildcard subscriptions
 - [ ] Heartbeat
