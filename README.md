@@ -3,7 +3,7 @@
 ## TODO
 
 - [X] Subscribing
-- [ ] Unsubscribing
+- [X] Unsubscribing
 - [ ] Publishing
 - [ ] Make client into API
 - [ ] Wildcard subscriptions
@@ -50,9 +50,17 @@ Acknowledgement from the broker to the client that they have connected. No other
 
 Subscribe to a topic.
 
-#### Fields
+| Fields | Description |
+| --- | --- |
+| topic | The topic to subscribe to. |
 
-- **topic**: The topic to be subscribed to.
+### UNSUBSCRIBE
+
+Unsubscribe from a topic.
+
+| Fields | Description |
+| --- | --- |
+| topic | The topic to unsubscribe from. |
 
 ### DISCONNECT
 

@@ -24,6 +24,14 @@ function sendSuback(id, topic)
     })
 end
 
+function sendUnsuback(id, topic)
+    modem.transmit(1883, 1883, {
+        id=id,
+        type="UNSUBACK",
+        topic=topic
+    })
+end
+
 function connect(id)
     if clients[id] ~= nil then
         print("Client " .. id .. " already in server client list, ignoring and acknowledging")
@@ -55,6 +63,24 @@ function subscribe(id, topic)
             clients[id]["subs"][topic] = true
             print("Client " .. id .. " subscribed to topic " .. topic)
             sendSuback(id, topic)
+        end
+    end
+end
+
+function unsubscribe(id, topic)
+    if clients[id] == nil then
+        print("Client " .. id .. " not in server client list, ignoring")
+    elseif type(topic) ~= "string" then
+        print("Client " .. id .. " sent non string topic, ignoring")
+    else
+        -- See if client is subscribed
+        if clients[id]["subs"][topic] == nil then
+            print("Client " .. id .. " isn't already subscribed to topic, ignoring and acknowledging")
+            sendUnsuback(id, topic)
+        else
+            clients[id]["subs"][topic] = nil
+            print("Client " .. id .. " unsubscribed from topic " .. topic)
+            sendUnsuback(id, topic)
         end
     end
 end
@@ -103,6 +129,10 @@ while true do
     elseif payload["type"] == "SUBSCRIBE" then
         subscribe(id, payload["topic"])
     elseif payload["type"] == "SUBACK" then
+        print("TODO")
+    elseif payload["type"] == "UNSUBSCRIBE" then
+        unsubscribe(id, payload["topic"])
+    elseif payload["type"] == "UNSUBACK" then
         print("TODO")
     elseif payload["type"] == "PUBLISH" then
         print("TODO")
