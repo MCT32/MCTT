@@ -2,7 +2,8 @@
 
 ## TODO
 
-- [ ] Subscribing
+- [X] Subscribing
+- [ ] Unsubscribing
 - [ ] Publishing
 - [ ] Make client into API
 - [ ] Wildcard subscriptions
@@ -44,6 +45,14 @@ Used to connect the client to the broker. No other fields required.
 ### CONNACK
 
 Acknowledgement from the broker to the client that they have connected. No other fields required.
+
+### SUBSCRIBE
+
+Subscribe to a topic.
+
+#### Fields
+
+- **topic**: The topic to be subscribed to.
 
 ### DISCONNECT
 

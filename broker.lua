@@ -16,6 +16,14 @@ function sendConnack(id)
     })
 end
 
+function sendSuback(id, topic)
+    modem.transmit(1883, 1883, {
+        id=id,
+        type="SUBACK",
+        topic=topic
+    })
+end
+
 function connect(id)
     if clients[id] ~= nil then
         print("Client " .. id .. " already in server client list, ignoring and acknowledging")
@@ -30,6 +38,24 @@ function connect(id)
         sendConnack(id)
 
         print("Client " .. id .. " connected")
+    end
+end
+
+function subscribe(id, topic)
+    if clients[id] == nil then
+        print("Client " .. id .. " not in server client list, ignoring")
+    elseif type(topic) ~= "string" then
+        print("Client " .. id .. " sent non string topic, ignoring")
+    else
+        -- See if client is already subscribed
+        if clients[id]["subs"][topic] ~= nil then
+            print("Client " .. id .. " already subscribed to topic, ignoring and acknowledging")
+            sendSuback(id, topic)
+        else
+            clients[id]["subs"][topic] = true
+            print("Client " .. id .. " subscribed to topic " .. topic)
+            sendSuback(id, topic)
+        end
     end
 end
 
@@ -75,7 +101,7 @@ while true do
     elseif payload["type"] == "CONNACK" then
         print("TODO")
     elseif payload["type"] == "SUBSCRIBE" then
-        print("TODO")
+        subscribe(id, payload["topic"])
     elseif payload["type"] == "SUBACK" then
         print("TODO")
     elseif payload["type"] == "PUBLISH" then
