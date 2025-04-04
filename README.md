@@ -4,6 +4,7 @@
 
 - [ ] Subscribing
 - [ ] Publishing
+- [ ] Make client into API
 - [ ] Wildcard subscriptions
 - [ ] Heartbeat
 - [ ] Retain
