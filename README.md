@@ -1,5 +1,14 @@
 # MCTT
 
+## TODO
+
+- [ ] Subscribing
+- [ ] Publishing
+- [ ] Wildcard subscriptions
+- [ ] Heartbeat
+- [ ] Retain
+- [ ] QoS
+
 ## Message format
 
 ```lua
